@@ -3,39 +3,74 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Tra cứu Điều luật - BLTTHS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sổ tay ĐTHS</title>
   <style>
     body {{
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
       padding: 20px;
-    }}
-    h2 {{
+      background-color: #f0f2f5;
       color: #333;
     }}
-    input {{
-      padding: 10px;
-      width: 300px;
+    header {{
+      text-align: center;
+      padding-bottom: 20px;
+    }}
+    h1 {{
+      font-size: 24px;
+      margin-bottom: 10px;
+    }}
+    input[type="text"] {{
+      width: 100%;
+      padding: 12px;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
     }}
     button {{
-      padding: 10px 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
       font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }}
+    button:hover {{
+      background-color: #0056b3;
     }}
     #result {{
       margin-top: 20px;
-      background: #fff;
-      padding: 20px;
+      background: white;
+      padding: 15px;
       border-radius: 8px;
       box-shadow: 0 0 5px #ccc;
-      white-space: pre-wrap;
+    }}
+    .article {{
+      margin-bottom: 20px;
+    }}
+    .article h3 {{
+      margin-bottom: 5px;
+      color: #007bff;
+    }}
+    @media (min-width: 768px) {{
+      h1 {{ font-size: 28px; }}
+      input, button {{ font-size: 18px; }}
     }}
   </style>
 </head>
 <body>
 
-  <h2>Tra cứu điều khoản - Bộ luật Tố tụng hình sự</h2>
-  <input type="text" id="searchInput" placeholder="Nhập: Điều 134">
+  <header>
+    <h1>Sổ tay ĐTHS</h1>
+    <p>Tra cứu Điều luật theo số hoặc từ khóa</p>
+  </header>
+
+  <input type="text" id="searchInput" placeholder="Nhập: Điều 134 hoặc từ khóa bất kỳ...">
   <button onclick="searchLaw()">Tìm kiếm</button>
 
   <div id="result"></div>
@@ -45,19 +80,26 @@
 
     function searchLaw() {{
       const input = document.getElementById('searchInput').value.trim().toLowerCase();
-      const match = input.match(/điều\s*(\d+)/i);
       const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "";
 
-      if (match) {{
-        const article = match[1];
-        if (dieuLuat[article]) {{
-          resultDiv.innerHTML = `<h3>Điều ${article}</h3><p>${dieuLuat[article].replace(/\n/g, "<br>")}</p>`;
-        }} else {{
-          resultDiv.innerHTML = `<p>❌ Không tìm thấy Điều ${article} trong Bộ luật.</p>`;
-        }}
-      }} else {{
-        resultDiv.innerHTML = `<p>⚠️ Vui lòng nhập theo định dạng: "Điều xxx".</p>`;
+      if (!input) {{
+        resultDiv.innerHTML = "<p>⚠️ Vui lòng nhập từ khóa hoặc số điều luật.</p>";
+        return;
       }}
+
+      const results = [];
+      const regex = new RegExp(input.replace(/[.*+?^${{}}()|[\]\]/g, '\\$&'), "i");
+
+      for (const [key, text] of Object.entries(dieuLuat)) {{
+        if (regex.test(text) || input === "điều " + key || input === "điều" + key || input === key) {{
+          results.push(`<div class='article'><h3>Điều ${key}</h3><div>${text.replace(/\n/g, "<br>")}</div></div>`);
+        }}
+      }}
+
+      resultDiv.innerHTML = results.length
+        ? results.join("")
+        : "<p>❌ Không tìm thấy điều luật nào khớp với từ khóa.</p>";
     }}
   </script>
 
