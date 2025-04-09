@@ -138,5 +138,60 @@
         : "<p>❌ Không tìm thấy kết quả phù hợp.</p>";
     }}
   </script>
+
+<script>
+  const relatedDocs = {};
+
+  function searchLaw() {
+    const input = document.getElementById("searchInput").value.trim();
+    const match = input.match(/(Điều\s*)?(\d+)/i);
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
+
+    if (match) {
+      const articleNum = match[2];
+      const article = dieuLuat[articleNum];
+      if (article) {
+        const related = relatedDocs[articleNum] || [];
+        const content = `
+          <h3>${article.split("\n")[0]}</h3>
+          <p>${article.replace(article.split("\n")[0], "").trim().replace(/\n/g, "<br>")}</p>
+          <div style="margin-top: 20px;">
+            <strong>Văn bản liên quan:</strong>
+            <ul id="related-list-${articleNum}">
+              ${related.map((item, index) => `<li>${item} <button onclick="removeRelated(${articleNum}, ${index})">❌</button></li>`).join("")}
+            </ul>
+            <input type="text" id="related-input-${articleNum}" placeholder="Thêm văn bản liên quan..." style="width: 80%;">
+            <button onclick="addRelated(${articleNum})">Thêm</button>
+          </div>
+        `;
+        resultDiv.innerHTML = content;
+      } else {
+        resultDiv.innerHTML = "<p>Không tìm thấy điều luật.</p>";
+      }
+    } else {
+      resultDiv.innerHTML = "<p>Vui lòng nhập đúng cú pháp: 'Điều xxx' hoặc số điều.</p>";
+    }
+  }
+
+  function addRelated(articleNum) {
+    const input = document.getElementById(`related-input-${articleNum}`);
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!relatedDocs[articleNum]) relatedDocs[articleNum] = [];
+    relatedDocs[articleNum].push(text);
+    input.value = "";
+    searchLaw();
+  }
+
+  function removeRelated(articleNum, index) {
+    if (relatedDocs[articleNum]) {
+      relatedDocs[articleNum].splice(index, 1);
+      searchLaw();
+    }
+  }
+</script>
+
 </body>
 </html>
